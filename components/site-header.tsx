@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./logo";
+import { SettingsButton } from "./settings-button";
 
 const navLinks = [
   { href: "/#features", label: "功能" },
@@ -22,9 +23,10 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          <SettingsButton />
           <Link
             href="/practice"
-            className="ml-2 rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper transition-colors hover:bg-accent hover:text-accent-ink"
+            className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper transition-colors hover:bg-accent hover:text-accent-ink"
           >
             開始練習
           </Link>

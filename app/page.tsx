@@ -36,8 +36,12 @@ const faqs = [
     a: "工程、產品、設計、行銷、業務都可以。只要貼上職缺描述，題目就會跟著職缺調整。",
   },
   {
-    q: "我的回答會被保存嗎？",
-    a: "不會。對話只存在你的瀏覽器分頁中，伺服器不會留存紀錄；重新整理頁面後就會清空。回答內容會傳送給 OpenAI 用來產生題目與評分。",
+    q: "需要付費嗎？要準備什麼？",
+    a: "本服務採 BYOK（自備金鑰）模式：在右上角「API 金鑰」設定你自己的 OpenAI API key 即可開始，使用費用由你的 OpenAI 帳戶支付。",
+  },
+  {
+    q: "我的 API key 和回答會被保存嗎？",
+    a: "API key 只存在你瀏覽器的 localStorage，每次請求時傳給伺服器代你呼叫 OpenAI，伺服器不會保存或記錄。對話也只存在瀏覽器分頁中，重新整理後就會清空。回答內容會傳送給 OpenAI 用來產生題目與評分。",
   },
   {
     q: "評分代表真的能錄取嗎？",
@@ -117,7 +121,7 @@ export default function Landing() {
           <div className="animate-rise">
             <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs text-muted">
               <span className="size-1.5 rounded-full bg-accent" />
-              由 OpenAI 驅動的模擬面試官
+              自備 OpenAI API key・BYOK
             </p>
             <h1 className="font-serif text-5xl font-black leading-[1.15] tracking-tight sm:text-6xl">
               下一場面試，

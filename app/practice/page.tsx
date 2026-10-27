@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { openSettings, useApiKey } from "@/lib/api-key";
 import {
+  API_KEY_HEADER,
   DEFAULT_QUESTIONS,
   MAX_QUESTIONS,
   MIN_QUESTIONS,
   type ChatMessage,
   type Feedback,
+  type InterviewError,
   type InterviewResponse,
 } from "@/lib/interview";
 
@@ -24,6 +27,7 @@ export default function PracticePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const apiKey = useApiKey();
 
   const totalQuestions = Number(questionInput);
   const questionCountValid =
@@ -40,16 +44,24 @@ export default function PracticePage() {
   }, [phase]);
 
   async function callInterview(history: ChatMessage[]) {
+    if (!apiKey) {
+      openSettings("開始面試前，請先設定你的 OpenAI API key。");
+      return false;
+    }
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/interview", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", [API_KEY_HEADER]: apiKey },
         body: JSON.stringify({ jobDescription, totalQuestions, messages: history }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "發生錯誤，請稍後再試");
+      if (!res.ok) {
+        const { error, code } = data as InterviewError;
+        if (code === "missing_key" || code === "invalid_key") openSettings(error);
+        throw new Error(error ?? "發生錯誤，請稍後再試");
+      }
 
       const result = data as InterviewResponse;
       if (result.type === "question") {
@@ -170,9 +182,11 @@ export default function PracticePage() {
               </div>
             </div>
 
+            <ApiKeyStatus apiKey={apiKey} />
+
             <button
               type="submit"
-              disabled={loading || !jobDescription.trim() || !questionCountValid}
+              disabled={loading || !apiKey || !jobDescription.trim() || !questionCountValid}
               className="h-14 rounded-full bg-accent font-medium text-accent-ink shadow-[0_10px_30px_-12px_var(--accent)] transition-all hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-40 disabled:shadow-none"
             >
               {loading ? "面試官準備中…" : "開始面試"}
@@ -273,6 +287,35 @@ export default function PracticePage() {
         <div ref={bottomRef} />
       </div>
     </main>
+  );
+}
+
+function ApiKeyStatus({ apiKey }: { apiKey: string | null }) {
+  if (apiKey) {
+    return (
+      <p className="flex items-center justify-center gap-2 text-sm text-muted">
+        <span className="size-2 rounded-full bg-sage" />
+        將使用你設定的 OpenAI API key
+        <button type="button" onClick={() => openSettings()} className="text-ink underline underline-offset-4 hover:text-accent">
+          管理
+        </button>
+      </p>
+    );
+  }
+  return (
+    <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-accent/40 bg-accent-soft px-5 py-4 sm:flex-row sm:items-center">
+      <p className="text-sm leading-6">
+        <span className="font-semibold">還沒有設定 API key。</span>
+        本服務使用你自己的 OpenAI 帳戶，金鑰只會存在這個瀏覽器。
+      </p>
+      <button
+        type="button"
+        onClick={() => openSettings()}
+        className="h-10 shrink-0 rounded-full bg-ink px-4 text-sm font-medium text-paper transition-colors hover:bg-accent hover:text-accent-ink"
+      >
+        設定 API key
+      </button>
+    </div>
   );
 }
 

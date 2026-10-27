@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import {
   MAX_QUESTIONS,
   MIN_QUESTIONS,
@@ -6,12 +5,10 @@ import {
   type Feedback,
   type InterviewResponse,
 } from "@/lib/interview";
+import { MODEL, clientFromRequest, errorResponse, openAIErrorResponse } from "@/lib/openai-server";
 
-const MODEL = process.env.OPENAI_MODEL ?? "gpt-5.4-mini";
 const MAX_JOB_DESCRIPTION_LENGTH = 5000;
 const MAX_MESSAGE_LENGTH = 4000;
-
-const client = new OpenAI();
 
 const feedbackSchema = {
   type: "object",
@@ -79,9 +76,12 @@ function parseBody(body: unknown) {
 }
 
 export async function POST(request: Request) {
+  const client = clientFromRequest(request);
+  if (client instanceof Response) return client;
+
   const parsed = parseBody(await request.json().catch(() => null));
   if (!parsed) {
-    return Response.json({ error: "請求格式不正確" }, { status: 400 });
+    return errorResponse(400, { error: "請求格式不正確" });
   }
 
   const { jobDescription, messages, totalQuestions } = parsed;
@@ -129,7 +129,6 @@ export async function POST(request: Request) {
 
     return Response.json({ type: "feedback", feedback } satisfies InterviewResponse);
   } catch (error) {
-    console.error("[interview] OpenAI request failed:", error);
-    return Response.json({ error: "面試官暫時無法回應，請稍後再試" }, { status: 502 });
+    return openAIErrorResponse(error, "interview");
   }
 }
