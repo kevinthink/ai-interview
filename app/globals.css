@@ -1,26 +1,89 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --paper: #f5f1ea;
+  --surface: #fffdf9;
+  --ink: #1b1815;
+  --muted: #6d655b;
+  --line: #e3dbcf;
+  --accent: #df4f26;
+  --accent-ink: #ffffff;
+  --accent-soft: #fbe4da;
+  --sage: #3f6b56;
+  --sage-soft: #e1ebe4;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #13110f;
+    --surface: #1c1916;
+    --ink: #f2ede6;
+    --muted: #a39a8e;
+    --line: #2f2a25;
+    --accent: #ff6b3f;
+    --accent-ink: #1b1815;
+    --accent-soft: #3b2017;
+    --sage: #8fc2a7;
+    --sage-soft: #1d2b24;
   }
 }
 
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
+  --font-sans: var(--font-geist-sans), "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+  --font-serif: var(--font-serif-tc), "Songti TC", "PMingLiU", serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* 細緻的紙張網點背景，用於 hero 等區塊 */
+.bg-dots {
+  background-image: radial-gradient(color-mix(in oklab, var(--ink) 14%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-rise {
+    animation: none;
+  }
 }
